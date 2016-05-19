@@ -1,0 +1,24 @@
+group 'de.earley.game.core'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'groovy'
+apply plugin: 'java'
+
+sourceCompatibility = 1.5
+
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+}
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.4.1'
+    def version = '3.0.0-SNAPSHOT'
+    compile "org.lwjgl:lwjgl:${version}"
+    compile "org.lwjgl:lwjgl-platform:${version}:natives-windows"
+    compile "org.lwjgl:lwjgl-platform:${version}:natives-linux"
+    compile "org.lwjgl:lwjgl-platform:${version}:natives-osx"
+//    compile 'com.github.TimothyEarley:Groovy-Entity-Component-System:master-SNAPSHOT'
+    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+}
