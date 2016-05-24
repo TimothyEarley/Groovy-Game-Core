@@ -34,9 +34,9 @@ class GameTest extends Specification {
 
 		when: "the game is started"
 		game.start()
-		Thread.sleep(100) // since this is working in a different thread, wai a bit
+		Thread.sleep 1000 // since this is working in a different thread, wait a bit
 		game.stop()
-		Thread.sleep(100)
+		Thread.sleep 100
 
 		then: "update, render stop were called"
 		updated && rendered && stopped

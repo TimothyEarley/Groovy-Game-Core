@@ -29,6 +29,11 @@ class GamePart {
 		children.each { it.stop() }
 	}
 
+	final void init() {
+		initSelf()
+		children.each { it.init() }
+	}
+
 
 	void updateSelf() {}
 	//TODO decide if every GamePart gets the full window or only parts
@@ -36,5 +41,5 @@ class GamePart {
 	// pro parts: decoupling from actual position (multiple instances at different locations)
 	void renderSelf() {}
 	void stopSelf() {}
-
+	void initSelf() {}
 }
