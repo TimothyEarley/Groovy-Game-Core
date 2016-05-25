@@ -22,12 +22,20 @@ class GameTest extends Specification {
 
 	}
 
-	def "render and update called on root"() {
+	def "all methods called on root"() {
 		given: "a game and root"
-		boolean updated, rendered, stopped
+		boolean updated, rendered, stopped, init, input
+		// TODO mock GamePart and use Spock to test method calls?
 		def root = new GamePart() {
-			void updateSelf() {	updated = true }
-			void renderSelf() { rendered = true }
+			@Override
+			void inputSelf(Window window) { input = true }
+			@Override
+			void initSelf(Window window) { init = true}
+			@Override
+			void updateSelf(float delta) {	updated = true }
+			@Override
+			void renderSelf(Window window) { rendered = true }
+			@Override
 			void stopSelf() { stopped = true }
 		}
 		def game = new Game( root: root, window: windowStub )
@@ -38,8 +46,8 @@ class GameTest extends Specification {
 		game.stop()
 		Thread.sleep 100
 
-		then: "update, render stop were called"
-		updated && rendered && stopped
+		then: "the methods were called"
+		updated && rendered && stopped && init  && input
 	}
 
 }

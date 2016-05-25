@@ -1,5 +1,4 @@
 package core
-
 /**
  * Created 19/05/16
  * @author Timothy Earley
@@ -19,5 +18,9 @@ trait Window {
 	abstract poll()
 
 	abstract nextRender()
+
+	abstract boolean isKeyPressed(int keycode)
+
+	abstract setClearColor(color)
 
 }

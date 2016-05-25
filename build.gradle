@@ -20,5 +20,8 @@ dependencies {
     compile "org.lwjgl:lwjgl-platform:${version}:natives-linux"
     compile "org.lwjgl:lwjgl-platform:${version}:natives-osx"
 //    compile 'com.github.TimothyEarley:Groovy-Entity-Component-System:master-SNAPSHOT'
+    compile 'org.joml:joml:1.7.1'
+    compile 'org.l33tlabs.twl:pngdecoder:1.0'
+
     testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
 }

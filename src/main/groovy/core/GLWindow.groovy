@@ -22,8 +22,6 @@ class GLWindow implements Window {
 
 	long window
 
-	def bgColor = Color.BLACK
-
 	String title = "Test please ignore"
 
 	def init() {
@@ -38,12 +36,16 @@ class GLWindow implements Window {
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE) // invisible
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE) // resizable
 
+		// Needed for OSX
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+
+
 		window = glfwCreateWindow(width, height, title, NULL, NULL)
 
 		if (!window) throw new RuntimeException( "Window could not be created" )
-
-		// Key listener
-		glfwSetKeyCallback window, new Input()
 
 		// Monitor resolution
 		def vidmode = glfwGetVideoMode glfwGetPrimaryMonitor()
@@ -60,6 +62,7 @@ class GLWindow implements Window {
 		// enable vsync
 		glfwSwapInterval 1
 
+
 		// set size callback
 		glfwSetFramebufferSizeCallback(window, {
 			window, width, height ->
@@ -70,10 +73,12 @@ class GLWindow implements Window {
 		// make visible
 		glfwShowWindow window
 
-		// GL stuff
 		GL.createCapabilities() // Binds GL to the one created in GLFW
-		glClearColor(bgColor.red / 0xff, bgColor.green / 0xff, bgColor.blue / 0xff, bgColor.alpha / 0xff)
 
+		// enable depth
+		glEnable GL_DEPTH_TEST
+
+		println "GLFW ${glfwGetVersionString()} \n OpenGL ${glGetString GL_VERSION}"
 	}
 
 	boolean shouldClose() {
@@ -82,7 +87,6 @@ class GLWindow implements Window {
 
 	@Override
 	def nextRender() {
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 		glfwSwapBuffers window
 	}
 
@@ -100,4 +104,21 @@ class GLWindow implements Window {
 		glfwSetErrorCallback(null).free()
 	}
 
+	@Override
+	boolean isKeyPressed(int keycode) {
+		glfwGetKey( window, keycode ) == GLFW_PRESS
+	}
+
+	@Override
+	def setClearColor(color) {
+		switch (color) {
+			case Color:
+				Color c = color
+				glClearColor(c.red / 0xff, c.green / 0xff, c.blue / 0xff, c.alpha / 0xff)
+				break
+			case Number:
+				Number n = color
+				glClearColor((n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff, (n >> 24) & 0xff)
+		}
+	}
 }

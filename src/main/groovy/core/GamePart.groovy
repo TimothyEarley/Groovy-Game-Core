@@ -12,16 +12,22 @@ class GamePart {
 
 	List<GamePart> children = []
 
-	final void update() {
+	final void input(Window window) {
 		if (!active) return
-		updateSelf()
-		children.each { it.update() }
+		inputSelf window
+		children.each { it.input window }
 	}
 
-	final void render() {
+	final void update(float delta) {
 		if (!active) return
-		renderSelf()
-		children.each { it.render() }
+		updateSelf(delta)
+		children.each { it.update(delta) }
+	}
+
+	final void render(Window window) {
+		if (!active) return
+		renderSelf(window)
+		children.each { it.render(window) }
 	}
 
 	final void stop() {
@@ -29,17 +35,19 @@ class GamePart {
 		children.each { it.stop() }
 	}
 
-	final void init() {
-		initSelf()
-		children.each { it.init() }
+	final void init(Window window) {
+		initSelf(window)
+		children.each { it.init(window) }
 	}
 
 
-	void updateSelf() {}
 	//TODO decide if every GamePart gets the full window or only parts
 	// pro full: better control for different aspect ratios
 	// pro parts: decoupling from actual position (multiple instances at different locations)
-	void renderSelf() {}
+
+	void updateSelf(float  delta) {}
+	void inputSelf(Window window) {}
+	void renderSelf(Window window) {}
+	void initSelf(Window window) {}
 	void stopSelf() {}
-	void initSelf() {}
 }
