@@ -20,8 +20,6 @@ import static org.lwjgl.system.MemoryUtil.NULL
  */
 class GLWindow implements Window {
 
-	long window
-
 	String title = "Test please ignore"
 
 	def init() {
@@ -77,6 +75,9 @@ class GLWindow implements Window {
 
 		// enable depth
 		glEnable GL_DEPTH_TEST
+
+		// Debug show traingles
+		glPolygonMode GL_FRONT_AND_BACK, GL_LINE //TODO remove
 
 		println "GLFW ${glfwGetVersionString()} \n OpenGL ${glGetString GL_VERSION}"
 	}

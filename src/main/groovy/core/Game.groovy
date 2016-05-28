@@ -1,4 +1,8 @@
 package core
+
+import groovy.util.logging.Log4j
+import org.apache.log4j.*
+
 /**
  *
  * Central manager of the game
@@ -7,6 +11,7 @@ package core
  * @author Timothy Earley
  */
 class Game implements Runnable {
+
 
 	static isOSX = System.getProperty('os.name').contains('Mac')
 
@@ -22,6 +27,8 @@ class Game implements Runnable {
 
 	Window window
 
+	MouseInput mouseInput
+
 	/* PRIVATE */
 
 	private running = false
@@ -30,6 +37,7 @@ class Game implements Runnable {
 	Game() {
 		addShutdownHook { stop() }
 		window = new GLWindow()
+		mouseInput = new MouseInput()
 	}
 
 	void start() {
@@ -63,6 +71,7 @@ class Game implements Runnable {
 	private init() {
 
 		window.init()
+		mouseInput.init(window)
 		root.init(window)
 	}
 
@@ -130,7 +139,8 @@ class Game implements Runnable {
 
 	private input() {
 		window.poll()
-		root.input window
+		mouseInput.input window
+		root.input window, mouseInput
 	}
 
 	private update(float delta) {

@@ -1,6 +1,6 @@
 package graphics
 
-import org.joml.Matrix4f
+import org.joml.*
 import org.lwjgl.BufferUtils
 
 import java.nio.FloatBuffer
@@ -90,6 +90,12 @@ class ShaderProgram {
 		}
 	}
 
+	void createUniforms(List<String> uniformNames) {
+		uniformNames.each {
+			createUniform it
+		}
+	}
+
 	void createUniform(String uniformName) {
 		int uniformLocation = glGetUniformLocation(programID, uniformName)
 
@@ -106,6 +112,10 @@ class ShaderProgram {
 
 	void setUniform(String uniformName, int value) {
 		glUniform1i(uniforms[uniformName], value)
+	}
+
+	void setUniform(String uniformName, Vector3f value) {
+		glUniform3f(uniforms[uniformName], value.x, value.y, value.z)
 	}
 
 

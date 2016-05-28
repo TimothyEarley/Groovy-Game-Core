@@ -5,6 +5,8 @@ package core
  */
 trait Window {
 
+	long window
+
 	int width = 400, height = 400
 
 	abstract init()

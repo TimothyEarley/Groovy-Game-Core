@@ -1,6 +1,7 @@
 package graphics
 
 import org.lwjgl.BufferUtils
+import org.joml.Vector3f
 
 import static org.lwjgl.opengl.GL11.*
 import static org.lwjgl.opengl.GL13.*
@@ -14,37 +15,54 @@ import static org.lwjgl.opengl.GL30.*
 class Mesh {
 
 
-	final int vaoID, posVboID, idxVboID, texCoordsVboID, vertexCount
+	final int vaoID, vertexCount
+	final List vboList = []
 
-	final Texture texture
+	Texture texture
+	Vector3f colour = new Vector3f()
 
-	Mesh(float[] positions, float[] texCoords, int[] indices, Texture texture) {
+	Mesh(float[] positions, float[] texCoords, float[] normals, int[] indices) {
 
 		this.texture = texture
 
 		vertexCount = indices.length
-
+		// Create VAO
 		vaoID = glGenVertexArrays()
 		glBindVertexArray(vaoID)
 
+		// Positions vbo
+		int vboID = glGenBuffers()
+		vboList << vboID
 		def verticesBuffer = BufferUtils.createFloatBuffer(positions.length)
 		verticesBuffer.put(positions).flip()
-		posVboID = glGenBuffers()
-		glBindBuffer(GL_ARRAY_BUFFER, posVboID)
+		glBindBuffer(GL_ARRAY_BUFFER, vboID)
 		glBufferData(GL_ARRAY_BUFFER, verticesBuffer, GL_STATIC_DRAW)
 		glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0)
 
+		// Texture coordinates vbo
+		vboID = glGenBuffers()
+		vboList << vboID
 		def texCoordsBuffer = BufferUtils.createFloatBuffer(texCoords.length)
 		texCoordsBuffer.put(texCoords).flip()
-		texCoordsVboID = glGenBuffers()
-		glBindBuffer(GL_ARRAY_BUFFER, texCoordsVboID)
+		glBindBuffer(GL_ARRAY_BUFFER, vboID)
 		glBufferData(GL_ARRAY_BUFFER, texCoordsBuffer, GL_STATIC_DRAW)
 		glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0)
 
+		// normals vbo
+		vboID = glGenBuffers()
+		vboList << vboID
+		def normalsBuffer = BufferUtils.createFloatBuffer(normals.length)
+		normalsBuffer.put(normals).flip()
+		glBindBuffer(GL_ARRAY_BUFFER, vboID)
+		glBufferData(GL_ARRAY_BUFFER, normalsBuffer, GL_STATIC_DRAW)
+		glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, 0)
+
+		// indices vbo
+		vboID = glGenBuffers()
+		vboList << vboID
 		def indicesBuffer = BufferUtils.createIntBuffer(indices.length)
 		indicesBuffer.put(indices).flip()
-		idxVboID = glGenBuffers()
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idxVboID)
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboID)
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL_STATIC_DRAW)
 
 
@@ -54,32 +72,46 @@ class Mesh {
 	}
 
 	void render() {
-		// Change the texture
-		glActiveTexture(GL_TEXTURE0)
-		// Bind the texture
-		glBindTexture(GL_TEXTURE_2D, texture.id)
+
+		if (texture) {
+			// Change the texture
+			glActiveTexture(GL_TEXTURE0)
+			// Bind the texture
+			glBindTexture(GL_TEXTURE_2D, texture.id)
+		}
 
 		//  Bind the VAO
 		glBindVertexArray(vaoID)
-		glEnableVertexAttribArray(0)
-		glEnableVertexAttribArray(1)
+		glEnableVertexAttribArray 0
+		glEnableVertexAttribArray 1
+		glEnableVertexAttribArray 2
 
 		glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0)
 
-		glDisableVertexAttribArray(0)
-		glDisableVertexAttribArray(1)
+		glDisableVertexAttribArray 0
+		glDisableVertexAttribArray 1
+		glDisableVertexAttribArray 2
+
 		glBindVertexArray(0)
 	}
 
 	void cleanup() {
 		glDisableVertexAttribArray(0)
 
-		glBindBuffer(GL_ARRAY_BUFFER, 0)
-		glDeleteBuffers(posVboID)
-		glDeleteBuffers(idxVboID)
-		glDeleteBuffers(texCoordsVboID)
+		if (texture) texture.cleanup()
 
+		// Delete VBOs
+		glBindBuffer(GL_ARRAY_BUFFER, 0)
+		vboList.each {
+			glDeleteBuffers it
+		}
+
+		// Delete VAO
 		glBindVertexArray(0)
 		glDeleteVertexArrays(vaoID)
+	}
+
+	boolean isTextured() {
+		texture != null
 	}
 }

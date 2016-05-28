@@ -12,10 +12,10 @@ class GamePart {
 
 	List<GamePart> children = []
 
-	final void input(Window window) {
+	final void input(Window window, MouseInput mouseInput) {
 		if (!active) return
-		inputSelf window
-		children.each { it.input window }
+		inputSelf window, mouseInput
+		children.each { it.input window, mouseInput }
 	}
 
 	final void update(float delta) {
@@ -46,7 +46,7 @@ class GamePart {
 	// pro parts: decoupling from actual position (multiple instances at different locations)
 
 	void updateSelf(float  delta) {}
-	void inputSelf(Window window) {}
+	void inputSelf(Window window, MouseInput mouseInput) {}
 	void renderSelf(Window window) {}
 	void initSelf(Window window) {}
 	void stopSelf() {}

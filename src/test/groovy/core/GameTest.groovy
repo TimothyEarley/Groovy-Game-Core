@@ -1,5 +1,6 @@
 package core
 
+import spock.lang.Ignore
 import spock.lang.Specification
 /**
  * Created 12/05/16
@@ -28,7 +29,7 @@ class GameTest extends Specification {
 		// TODO mock GamePart and use Spock to test method calls?
 		def root = new GamePart() {
 			@Override
-			void inputSelf(Window window) { input = true }
+			void inputSelf(Window window, MouseInput mouseInput) { input = true }
 			@Override
 			void initSelf(Window window) { init = true}
 			@Override

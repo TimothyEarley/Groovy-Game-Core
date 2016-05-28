@@ -41,4 +41,8 @@ class Texture {
 		glGenerateMipmap(GL_TEXTURE_2D)
 	}
 
+	void cleanup() {
+		glDeleteTextures id
+	}
+
 }

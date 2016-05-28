@@ -4,6 +4,10 @@ version '1.0-SNAPSHOT'
 apply plugin: 'groovy'
 apply plugin: 'java'
 
+// for debug
+apply plugin: 'application'
+mainClassName = "example.GameTester"
+
 sourceCompatibility = 1.5
 
 repositories {
@@ -14,14 +18,14 @@ repositories {
 
 dependencies {
     compile 'org.codehaus.groovy:groovy-all:2.4.1'
-    def version = '3.0.0-SNAPSHOT'
-    compile "org.lwjgl:lwjgl:${version}"
-    compile "org.lwjgl:lwjgl-platform:${version}:natives-windows"
-    compile "org.lwjgl:lwjgl-platform:${version}:natives-linux"
-    compile "org.lwjgl:lwjgl-platform:${version}:natives-osx"
+    def LWJGLversion = '3.0.0-SNAPSHOT'
+    compile "org.lwjgl:lwjgl:${LWJGLversion}"
+    compile "org.lwjgl:lwjgl-platform:${LWJGLversion}:natives-windows"
+    compile "org.lwjgl:lwjgl-platform:${LWJGLversion}:natives-linux"
+    compile "org.lwjgl:lwjgl-platform:${LWJGLversion}:natives-osx"
 //    compile 'com.github.TimothyEarley:Groovy-Entity-Component-System:master-SNAPSHOT'
-    compile 'org.joml:joml:1.7.1'
-    compile 'org.l33tlabs.twl:pngdecoder:1.0'
+    compile 'org.joml:joml:1.7.1'                   // Vector, Matrices
+    compile 'org.l33tlabs.twl:pngdecoder:1.0'       // PNG loading
 
     testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
 }
