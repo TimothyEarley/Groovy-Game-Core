@@ -2,10 +2,8 @@ package example
 
 import core.GameItem
 import core.Window
-import graphics.Camera
-import graphics.ShaderProgram
-import graphics.Transformation
-import org.joml.Matrix4f
+import graphics.*
+import org.joml.*
 
 import static org.lwjgl.opengl.GL11.*
 
@@ -23,6 +21,8 @@ class Renderer {
 
 	private ShaderProgram shaderProgram
 
+	private float specularPower = 10
+
 	def init(Window window) {
 
 		shaderProgram = new ShaderProgram()
@@ -36,17 +36,23 @@ class Renderer {
 			'projectionMatrix',
 			'modelViewMatrix',
 			'texture_sampler',
-			'colour',
-			'useColour',
+			'cameraPos',
+			'specularPower',
+			'ambientLight'
 		])
+
+		shaderProgram.createPointLightUniform 'pointLight'
+		shaderProgram.createMaterialUniform 'material'
 	}
 
 	def clear() {
 		glClear ( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT )
 	}
 
-	def render(Window window, Camera camera, List<GameItem> gameItems) {
+	def render(Window window, Camera camera, List<GameItem> gameItems, Vector3f ambientLight, PointLight pointLight) {
 		clear()
+
+		//TODO only on resize
 		glViewport(0, 0, window.width, window.height)
 
 		shaderProgram.bind()
@@ -58,17 +64,24 @@ class Renderer {
 		// view matrix
 		Matrix4f viewMatrix = transformation.getViewMatrix(camera)
 
+		//Light
+		shaderProgram.setUniform("cameraPos", camera.position)
+		shaderProgram.setUniform("ambientLight", ambientLight)
+		shaderProgram.setUniform("specularPower", specularPower)
 		shaderProgram.setUniform('texture_sampler', 0)
+		def lightCopy = pointLight.clone()
+		def lightPos = lightCopy.position
+		def aux = new Vector4f(lightPos, 1)
+		aux.mul(viewMatrix)
+		lightPos.x = aux.x
+		lightPos.y = aux.y
+		lightPos.z = aux.z
+		shaderProgram.setUniform('pointLight', lightCopy)
 
 		gameItems.each {
 			Matrix4f modelViewMatrix = transformation.getModelViewMatrix(it, viewMatrix)
 			shaderProgram.setUniform('modelViewMatrix', modelViewMatrix)
-
-			// texture or colour
-			shaderProgram.setUniform('colour', it.mesh.colour)
-			shaderProgram.setUniform('useColour', it.mesh.isTextured() ? 0 : 1)
-
-
+			shaderProgram.setUniform('material', it.mesh.material)
 			it.mesh.render()
 		}
 

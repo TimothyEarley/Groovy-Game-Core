@@ -99,9 +99,22 @@ class ShaderProgram {
 	void createUniform(String uniformName) {
 		int uniformLocation = glGetUniformLocation(programID, uniformName)
 
-		if (uniformLocation < 0) throw new Exception("Could not find uniform: $uniformName")
+		if (uniformLocation < 0) throw new Exception("Could not find uniform: '$uniformName'")
 
 		uniforms[uniformName] = uniformLocation
+	}
+
+	void createUniforms(String prefix, List<String> uniforms) {
+		createUniforms ( uniforms.collect { "$prefix.$it" } )
+	}
+
+	void createPointLightUniform(String uniformName) {
+		createUniforms (uniformName, ['colour', 'position', 'intensity'])
+		createUniforms ("${uniformName}.att", ['constant', 'linear', 'exponent'])
+	}
+
+	void createMaterialUniform(String uniformName) {
+		createUniforms (uniformName, ['colour', 'useColour', 'reflectance'])
 	}
 
 	void setUniform(String uniformName, Matrix4f value) {
@@ -114,8 +127,27 @@ class ShaderProgram {
 		glUniform1i(uniforms[uniformName], value)
 	}
 
+	void setUniform(String uniformName, float value) {
+		glUniform1f(uniforms[uniformName], value)
+	}
+
 	void setUniform(String uniformName, Vector3f value) {
 		glUniform3f(uniforms[uniformName], value.x, value.y, value.z)
+	}
+
+	void setUniform(String uniformName, PointLight pointLight) {
+		setUniform ("${uniformName}.colour", pointLight.colour)
+		setUniform ("${uniformName}.position", pointLight.position)
+		setUniform ("${uniformName}.intensity", pointLight.intensity)
+		setUniform ("${uniformName}.att.constant", pointLight.att.constant)
+		setUniform ("${uniformName}.att.linear", pointLight.att.linear)
+		setUniform ("${uniformName}.att.exponent", pointLight.att.exponent)
+	}
+
+	void setUniform(String uniformName, Material mat) {
+		setUniform ("${uniformName}.colour", mat.colour)
+		setUniform ("${uniformName}.useColour", mat.isTextured() ? 0 : 1)
+		setUniform ("${uniformName}.reflectance", mat.reflectance)
 	}
 
 

@@ -18,12 +18,9 @@ class Mesh {
 	final int vaoID, vertexCount
 	final List vboList = []
 
-	Texture texture
-	Vector3f colour = new Vector3f()
+	Material material
 
 	Mesh(float[] positions, float[] texCoords, float[] normals, int[] indices) {
-
-		this.texture = texture
 
 		vertexCount = indices.length
 		// Create VAO
@@ -73,6 +70,8 @@ class Mesh {
 
 	void render() {
 
+		def texture = material.texture
+
 		if (texture) {
 			// Change the texture
 			glActiveTexture(GL_TEXTURE0)
@@ -98,7 +97,8 @@ class Mesh {
 	void cleanup() {
 		glDisableVertexAttribArray(0)
 
-		if (texture) texture.cleanup()
+
+		if (material) material.cleanup()
 
 		// Delete VBOs
 		glBindBuffer(GL_ARRAY_BUFFER, 0)
@@ -111,7 +111,4 @@ class Mesh {
 		glDeleteVertexArrays(vaoID)
 	}
 
-	boolean isTextured() {
-		texture != null
-	}
 }

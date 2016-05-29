@@ -77,7 +77,7 @@ class GLWindow implements Window {
 		glEnable GL_DEPTH_TEST
 
 		// Debug show traingles
-		glPolygonMode GL_FRONT_AND_BACK, GL_LINE //TODO remove
+		// glPolygonMode GL_FRONT_AND_BACK, GL_LINE
 
 		println "GLFW ${glfwGetVersionString()} \n OpenGL ${glGetString GL_VERSION}"
 	}

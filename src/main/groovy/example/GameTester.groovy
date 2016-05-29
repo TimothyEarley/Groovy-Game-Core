@@ -29,14 +29,25 @@ def root = new GamePart() {
 	Vector3f camInc = new Vector3f()
 	Vector2f camRot = new Vector2f()
 
+	Vector3f ambientLight
+	PointLight pointLight
+
 	@Override
 	void initSelf(Window window) {
 		renderer.init(window)
-		// Mesh mesh = OBJLoader.loadMesh('/cube.obj')
-		Mesh mesh = OBJLoader.loadMesh('/bunny.obj')
-		// mesh.texture = new Texture('/cube_texture.png')
+		// Mesh mesh = OBJLoader.loadMesh('/bunny.obj')
+		def mesh = OBJLoader.loadMesh('/cube.obj')
+		def texture = new Texture('/cube_texture.png')
+		mesh.material = new Material(texture: texture, reflectance: 1f)
 		rect = new GameItem(mesh)
-		rect.position.z = -2
+		rect.position.set (0, 0, -2)
+
+		ambientLight = new Vector3f(0.3, 0.3, 0.3)
+
+		Vector3f lightColour = new Vector3f(1,1,1)
+		Vector3f lightPosition = new Vector3f(0,0,1)
+
+		pointLight = new PointLight(colour: lightColour, position: lightPosition, intensity: 1f)
 	}
 
 	@Override
@@ -60,8 +71,8 @@ def root = new GamePart() {
 		else if (window.isKeyPressed(GLFW.GLFW_KEY_D)) camInc.x = 1
 		else camInc.x = 0
 
-		if (window.isKeyPressed(GLFW.GLFW_KEY_Z)) camInc.y = -1
-		else if (window.isKeyPressed(GLFW.GLFW_KEY_X)) camInc.y = 1
+		if (window.isKeyPressed(GLFW.GLFW_KEY_LEFT_SHIFT)) camInc.y = -1
+		else if (window.isKeyPressed(GLFW.GLFW_KEY_SPACE)) camInc.y = 1
 		else camInc.y = 0
 
 		if (mouseInput.btnPressed[GLFW.GLFW_MOUSE_BUTTON_1]) {
@@ -104,7 +115,7 @@ def root = new GamePart() {
 	@Override
 	void renderSelf(Window window) {
 		window.clearColor = new Color(red, green, blue)
-		renderer.render(window, camera, [rect])
+		renderer.render(window, camera, [rect], ambientLight, pointLight)
 	}
 }
 
