@@ -1,6 +1,5 @@
 package core
 
-import spock.lang.Ignore
 import spock.lang.Specification
 /**
  * Created 12/05/16
@@ -39,15 +38,20 @@ class GameTest extends Specification {
 			@Override
 			void stopSelf() { stopped = true }
 		}
-		def game = new Game( root: root, window: windowStub )
+		// Mock mouseInput
+		def mouseInput = new MouseInput() {
+			void init(Window window) {}
+		}
+		def game = new Game( root: root, window: windowStub, mouseInput: mouseInput )
 
 		when: "the game is started"
 		game.start()
-		Thread.sleep 1000 // since this is working in a different thread, wait a bit
+		Thread.sleep 3000 // since this is working in a different thread, wait a bit
 		game.stop()
 		Thread.sleep 100
 
 		then: "the methods were called"
+		println "Updated: $updated, rendered: $rendered, stopped: $stopped, init: $init. input: $input"
 		updated && rendered && stopped && init  && input
 	}
 
