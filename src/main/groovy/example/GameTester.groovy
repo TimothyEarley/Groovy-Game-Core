@@ -2,6 +2,7 @@ package example
 
 import core.*
 import graphics.*
+import graphics.lights.*
 import graphics.obj.OBJLoader
 import org.joml.Vector2f
 import org.joml.Vector3f
@@ -31,6 +32,8 @@ def root = new GamePart() {
 
 	Vector3f ambientLight
 	PointLight pointLight
+	DirectionalLight sun
+	float sunAngle = 0
 
 	@Override
 	void initSelf(Window window) {
@@ -47,7 +50,8 @@ def root = new GamePart() {
 		Vector3f lightColour = new Vector3f(1,1,1)
 		Vector3f lightPosition = new Vector3f(0,0,1)
 
-		pointLight = new PointLight(colour: lightColour, position: lightPosition, intensity: 1f)
+		pointLight = new PointLight(colour: lightColour, position: lightPosition, intensity: 0f)
+		sun = new DirectionalLight(colour: new Vector3f(1, 1, 0.8), direction: new Vector3f(), intensity: 0)
 	}
 
 	@Override
@@ -102,6 +106,36 @@ def root = new GamePart() {
 
 		camera.moveRotation( (float) (camRot.x * delta), (float) (camRot.y *delta), 0 )
 
+		updateDayNightCycle delta
+	}
+
+	void updateDayNightCycle(delta) {
+		sunAngle += delta * 1E-1
+
+		println Math.toDegrees(sunAngle)
+
+		//TODO fix angles
+		// Night
+		if (sunAngle > Math.PI / 2) {
+			sun.intensity = 0
+			if (sunAngle > Math.PI * 2) sunAngle = 0
+		}
+		// Dusk
+		else if (sunAngle <= - Math.PI * 2/5 || sunAngle >= Math.PI * 2/5) {
+			float factor = (Math.abs(sunAngle) - Math.PI * 2/5) / 10
+			sun.intensity = factor
+			sun.colour.y = Math.max(factor, 0.9f)
+			sun.colour.z = Math.max(factor, 0.5f)
+		}
+		// Day
+		else {
+			sun.intensity = 1
+			sun.colour.set (1,1,1)
+		}
+
+		// move sun
+		sun.direction.x = Math.sin (sunAngle)
+		sun.direction.y = Math.cos (sunAngle)
 	}
 
 	int restrict(number) {
@@ -115,7 +149,7 @@ def root = new GamePart() {
 	@Override
 	void renderSelf(Window window) {
 		window.clearColor = new Color(red, green, blue)
-		renderer.render(window, camera, [rect], ambientLight, pointLight)
+		renderer.render(window, camera, [rect], ambientLight, pointLight, sun)
 	}
 }
 

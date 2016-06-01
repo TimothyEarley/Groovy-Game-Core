@@ -1,5 +1,6 @@
 package graphics
 
+import graphics.lights.*
 import org.joml.*
 import org.lwjgl.BufferUtils
 
@@ -113,6 +114,10 @@ class ShaderProgram {
 		createUniforms ("${uniformName}.att", ['constant', 'linear', 'exponent'])
 	}
 
+	void createDirectionalLightUniform(String uniformName) {
+		createUniforms (uniformName, ['colour', 'direction', 'intensity'])
+	}
+
 	void createMaterialUniform(String uniformName) {
 		createUniforms (uniformName, ['colour', 'useColour', 'reflectance'])
 	}
@@ -148,6 +153,12 @@ class ShaderProgram {
 		setUniform ("${uniformName}.colour", mat.colour)
 		setUniform ("${uniformName}.useColour", mat.isTextured() ? 0 : 1)
 		setUniform ("${uniformName}.reflectance", mat.reflectance)
+	}
+
+	void setUniform(String uniformName, DirectionalLight directionalLight) {
+		setUniform ("${uniformName}.colour", directionalLight.colour)
+		setUniform ("${uniformName}.direction", directionalLight.direction)
+		setUniform ("${uniformName}.intensity", directionalLight.intensity)
 	}
 
 

@@ -3,6 +3,7 @@ package example
 import core.GameItem
 import core.Window
 import graphics.*
+import graphics.lights.*
 import org.joml.*
 
 import static org.lwjgl.opengl.GL11.*
@@ -43,13 +44,14 @@ class Renderer {
 
 		shaderProgram.createPointLightUniform 'pointLight'
 		shaderProgram.createMaterialUniform 'material'
+		shaderProgram.createDirectionalLightUniform 'directionalLight'
 	}
 
 	def clear() {
 		glClear ( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT )
 	}
 
-	def render(Window window, Camera camera, List<GameItem> gameItems, Vector3f ambientLight, PointLight pointLight) {
+	def render(Window window, Camera camera, List<GameItem> gameItems, Vector3f ambientLight, PointLight pointLight, DirectionalLight directionalLight) {
 		clear()
 
 		//TODO only on resize
@@ -77,6 +79,11 @@ class Renderer {
 		lightPos.y = aux.y
 		lightPos.z = aux.z
 		shaderProgram.setUniform('pointLight', lightCopy)
+		def directionalLightCopy = directionalLight.clone()
+		Vector4f dir = new Vector4f(directionalLightCopy.direction, 0)
+		dir.mul (viewMatrix)
+		directionalLightCopy.direction.set (dir.x, dir.y, dir.z)
+		shaderProgram.setUniform ("directionalLight", directionalLightCopy)
 
 		gameItems.each {
 			Matrix4f modelViewMatrix = transformation.getModelViewMatrix(it, viewMatrix)

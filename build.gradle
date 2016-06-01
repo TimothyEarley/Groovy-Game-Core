@@ -7,6 +7,7 @@ apply plugin: 'java'
 // for debug
 apply plugin: 'application'
 mainClassName = "example.GameTester"
+applicationDefaultJvmArgs = ["-Djava.library.path=libe/"]
 
 sourceCompatibility = 1.5
 
