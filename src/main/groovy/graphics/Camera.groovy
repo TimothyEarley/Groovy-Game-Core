@@ -1,10 +1,13 @@
 package graphics
 
 import org.joml.Vector3f
+import groovy.transform.Canonical
+
 /**
  * Created 28/05/16
  * @author Timothy Earley
  */
+@Canonical
 class Camera {
 
 	// rotation in radians

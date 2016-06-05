@@ -17,6 +17,7 @@ class Renderer {
 	static final float FOV = Math.toRadians(60)
 	static final float Z_NEAR = 0.01f, Z_FAR = 1000f
 
+	static final int MAX_POINT_LIGHTS = 5, MAX_SPOT_LIGHTS = 5
 
 	private Transformation transformation
 
@@ -42,7 +43,8 @@ class Renderer {
 			'ambientLight'
 		])
 
-		shaderProgram.createPointLightUniform 'pointLight'
+		shaderProgram.createPointLightListUniform 'pointLights', MAX_POINT_LIGHTS
+		shaderProgram.createSpotLightListUniform 'spotLights', MAX_SPOT_LIGHTS
 		shaderProgram.createMaterialUniform 'material'
 		shaderProgram.createDirectionalLightUniform 'directionalLight'
 	}
@@ -51,7 +53,7 @@ class Renderer {
 		glClear ( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT )
 	}
 
-	def render(Window window, Camera camera, List<GameItem> gameItems, Vector3f ambientLight, PointLight pointLight, DirectionalLight directionalLight) {
+	def render(Window window, Camera camera, List<GameItem> gameItems, Vector3f ambientLight, List<PointLight> pointLights, List<SpotLight> spotLights, DirectionalLight directionalLight) {
 		clear()
 
 		//TODO only on resize
@@ -66,25 +68,12 @@ class Renderer {
 		// view matrix
 		Matrix4f viewMatrix = transformation.getViewMatrix(camera)
 
-		//Light
 		shaderProgram.setUniform("cameraPos", camera.position)
-		shaderProgram.setUniform("ambientLight", ambientLight)
-		shaderProgram.setUniform("specularPower", specularPower)
-		shaderProgram.setUniform('texture_sampler', 0)
-		def lightCopy = pointLight.clone()
-		def lightPos = lightCopy.position
-		def aux = new Vector4f(lightPos, 1)
-		aux.mul(viewMatrix)
-		lightPos.x = aux.x
-		lightPos.y = aux.y
-		lightPos.z = aux.z
-		shaderProgram.setUniform('pointLight', lightCopy)
-		def directionalLightCopy = directionalLight.clone()
-		Vector4f dir = new Vector4f(directionalLightCopy.direction, 0)
-		dir.mul (viewMatrix)
-		directionalLightCopy.direction.set (dir.x, dir.y, dir.z)
-		shaderProgram.setUniform ("directionalLight", directionalLightCopy)
 
+		//Light
+		renderLights(viewMatrix, ambientLight, pointLights, spotLights, directionalLight)
+
+		shaderProgram.setUniform('texture_sampler', 0)
 		gameItems.each {
 			Matrix4f modelViewMatrix = transformation.getModelViewMatrix(it, viewMatrix)
 			shaderProgram.setUniform('modelViewMatrix', modelViewMatrix)
@@ -93,6 +82,46 @@ class Renderer {
 		}
 
 		shaderProgram.unbind()
+
+	}
+
+	def renderLights(Matrix4f viewMatrix, Vector3f ambientLight, List<PointLight> pointLights, List<SpotLight> spotLights, DirectionalLight directionalLight) {
+
+		shaderProgram.setUniform("ambientLight", ambientLight)
+		shaderProgram.setUniform("specularPower", specularPower)
+
+		//Point lights
+		pointLights?.eachWithIndex {
+			PointLight pointLight, int i ->
+				def lightCopy = pointLight.clone()
+				def lightPos = lightCopy.position
+				def aux = new Vector4f(lightPos, 1)
+				aux.mul(viewMatrix)
+				lightPos.set(aux.x, aux.y, aux.z)
+				shaderProgram.setUniform('pointLights', lightCopy, i)
+		}
+
+		//Spot lights
+		spotLights?.eachWithIndex {
+			SpotLight spotLight, int i ->
+				def lightCopy = spotLight.clone()
+				def dir = new Vector4f(lightCopy.direction, 0)
+				dir.mul(viewMatrix)
+				lightCopy.direction.set(dir.x, dir.y, dir.z)
+				def lightPos = lightCopy.position
+				def aux = new Vector4f(lightPos, 1)
+				aux.mul(viewMatrix)
+				lightPos.set(aux.x, aux.y, aux.z)
+
+				shaderProgram.setUniform ("spotLights", lightCopy, i)
+		}
+
+
+		def directionalLightCopy = directionalLight.clone()
+		Vector4f dir = new Vector4f(directionalLightCopy.direction, 0)
+		dir.mul (viewMatrix)
+		directionalLightCopy.direction.set (dir.x, dir.y, dir.z)
+		shaderProgram.setUniform ("directionalLight", directionalLightCopy)
 
 	}
 

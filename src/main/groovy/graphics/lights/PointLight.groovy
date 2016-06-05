@@ -1,7 +1,9 @@
 package graphics.lights
 
 import org.joml.Vector3f
+import groovy.transform.Canonical
 
+@Canonical
 class PointLight {
 
   Vector3f colour, position
@@ -13,6 +15,7 @@ class PointLight {
     new PointLight(colour: new Vector3f(colour), position: new Vector3f(position), intensity: intensity, att: att)
   }
 
+  @Canonical
   static class Attenuation {
     float constant, linear, exponent
   }

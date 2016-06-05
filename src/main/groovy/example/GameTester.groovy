@@ -22,7 +22,7 @@ def root = new GamePart() {
 	Camera camera = new Camera()
 
 	def renderer = new Renderer()
-	GameItem rect
+	List<GameItem> gameItems
 
 	int direction = 0
 	int red, green, blue
@@ -31,7 +31,8 @@ def root = new GamePart() {
 	Vector2f camRot = new Vector2f()
 
 	Vector3f ambientLight
-	PointLight pointLight
+	List<PointLight> pointLights = []
+	List<SpotLight> spotLights = []
 	DirectionalLight sun
 	float sunAngle = 0
 
@@ -42,22 +43,28 @@ def root = new GamePart() {
 		def mesh = OBJLoader.loadMesh('/cube.obj')
 		def texture = new Texture('/cube_texture.png')
 		mesh.material = new Material(texture: texture, reflectance: 1f)
-		rect = new GameItem(mesh)
-		rect.position.set (0, 0, -2)
-
+		gameItems = []
+		10.times {
+			x -> 10.times {
+				z ->
+					def rect = new GameItem(mesh)
+					rect.position.set (x * 2, 0, z * 2 - 2)
+					gameItems << rect
+			}
+		}
 		ambientLight = new Vector3f(0.3, 0.3, 0.3)
 
 		Vector3f lightColour = new Vector3f(1,1,1)
 		Vector3f lightPosition = new Vector3f(0,0,1)
 
-		pointLight = new PointLight(colour: lightColour, position: lightPosition, intensity: 0f)
+		pointLights << new PointLight(colour: lightColour, position: lightPosition, intensity: 0f)
 		sun = new DirectionalLight(colour: new Vector3f(1, 1, 0.8), direction: new Vector3f(), intensity: 0)
 	}
 
 	@Override
 	void stopSelf() {
 		renderer.stop()
-		rect.cleanup()
+		gameItems.each {it.cleanup() }
 	}
 
 	@Override
@@ -98,11 +105,11 @@ def root = new GamePart() {
 		red = restrict red
 		green = restrict green
 		blue = restrict blue
+		//
+		// float amt = delta
+		// rect.rotation.add(amt, 0, 0)
 
-		float amt = delta
-		rect.rotation.add(amt, 0, 0)
-
-		camera.movePosition camInc.mul(delta)
+		camera.movePosition camInc.mul((float) (delta * 5))
 
 		camera.moveRotation( (float) (camRot.x * delta), (float) (camRot.y *delta), 0 )
 
@@ -111,8 +118,6 @@ def root = new GamePart() {
 
 	void updateDayNightCycle(delta) {
 		sunAngle += delta * 1E-1
-
-		println Math.toDegrees(sunAngle)
 
 		//TODO fix angles
 		// Night
@@ -149,7 +154,7 @@ def root = new GamePart() {
 	@Override
 	void renderSelf(Window window) {
 		window.clearColor = new Color(red, green, blue)
-		renderer.render(window, camera, [rect], ambientLight, pointLight, sun)
+		renderer.render(window, camera, gameItems, ambientLight, pointLights, spotLights, sun)
 	}
 }
 

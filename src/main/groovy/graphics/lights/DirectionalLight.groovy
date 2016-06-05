@@ -1,7 +1,9 @@
 package graphics.lights
 
 import org.joml.Vector3f
+import groovy.transform.Canonical
 
+@Canonical
 class DirectionalLight {
 
   Vector3f colour, direction
